@@ -32,13 +32,14 @@ const parseAndFilterCsvToJson = async(url, selectFields = []) => {
 // validateCsv("https://people.sc.fsu.edu/~jburkardt/data/csv/biostats.csv");
 // parseAndFilterCsvToJson("https://people.sc.fsu.edu/~jburkardt/data/csv/biostats.csv", ["Name", "Sex", "Age"]); 
 
-app.post("/", (request, response) => {
-    const url = request.csv.url;
-    const selectFields = (request.csv.select_fields) ? request.csv.select_fields : [];
+app.post("/", async(request, response) => {
+    const url = request.body.csv.url;
+    const selectFields = (request.body.csv.select_fields) ? request.body.csv.select_fields : [];
     if (validateCsv(url)) {
+        const parsedCsv = await parseAndFilterCsvToJson(url, selectFields);
         const responseData = {
             conversion_key: uniqid(),
-            json: parseAndFilterCsvToJson(url, selectFields),
+            json: parsedCsv,
         };
         response.status(200).json(responseData);
     } else {
